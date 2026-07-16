@@ -44,6 +44,7 @@ class AdminResourcesTest extends TestCase
         $this->actingAs($user);
 
         foreach ([
+            '/admin',
             '/admin/posts',
             '/admin/posts/create',
             "/admin/posts/{$post->getKey()}/edit",
