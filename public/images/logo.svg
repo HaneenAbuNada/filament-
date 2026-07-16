@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 48" role="img" aria-label="Admin Panel">
+    <rect width="48" height="48" rx="10" fill="#2563eb"/>
+    <path d="M15 34 24 12l9 22-9-5-9 5Z" fill="#fff"/>
+    <text x="60" y="32" font-family="Arial, sans-serif" font-size="24" font-weight="700" fill="currentColor">Admin Panel</text>
+</svg>

@@ -1,0 +1,50 @@
+@import '../../../../vendor/filament/filament/resources/css/theme.css';
+
+@source '../../../../app/Filament/**/*';
+@source '../../../../resources/views/filament/**/*';
+
+@theme {
+    --color-main-primary: #1e293b;
+}
+
+.fi-sidebar {
+    @apply bg-main-primary;
+}
+
+.fi-sidebar-item-icon,
+.fi-sidebar-item-label {
+    @apply text-white;
+}
+
+.fi-sidebar-item-btn:hover {
+    @apply bg-blue-600;
+}
+
+.fi-sidebar-item-btn:hover .fi-sidebar-item-icon,
+.fi-sidebar-item-btn:hover .fi-sidebar-item-label {
+    @apply text-black;
+}
+
+.fi-sidebar-item.fi-active .fi-sidebar-item-btn {
+    @apply bg-blue-600 text-white;
+}
+
+.fi-topbar-start {
+    @apply bg-main-primary;
+}
+
+.fi-ta-header-cell {
+    @apply rounded-sm bg-main-primary text-white;
+}
+
+.fi-ta-cell {
+    @apply border border-gray-200;
+}
+
+.fi-ta-actions .fi-ac-action:first-child {
+    @apply rounded-sm border-2 bg-blue-500 p-1 pr-2 text-white;
+}
+
+.fi-ta-actions .fi-ac-action:last-child {
+    @apply rounded-sm border-2 bg-red-500 p-1 pr-2 text-white;
+}

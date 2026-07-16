@@ -3,6 +3,9 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Pages\Dashboard;
+use Filament\Auth\MultiFactor\App\AppAuthentication;
+use Filament\Auth\MultiFactor\Email\EmailAuthentication;
+use Filament\FontProviders\GoogleFontProvider;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -29,6 +32,12 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
+            ->profile()
+            ->multiFactorAuthentication([
+                AppAuthentication::make(),
+                EmailAuthentication::make(),
+            ])
+            ->databaseNotifications()
             ->sidebarCollapsibleOnDesktop()
             ->globalSearchKeyBindings(['command+k', 'ctrl+k'])
             ->globalSearchFieldKeyBindingSuffix()
@@ -39,8 +48,14 @@ class AdminPanelProvider extends PanelProvider
                 NavigationGroup::make('Locations')->collapsible(),
             ])
             ->colors([
-                'primary' => Color::Amber,
+                'primary' => Color::Blue,
             ])
+            ->font('Roboto Mono', provider: GoogleFontProvider::class)
+            ->brandName('Admin Panel')
+            ->brandLogo(asset('images/logo.svg'))
+            ->favicon(asset('favicon.ico'))
+            ->darkMode(false)
+            ->viteTheme('resources/css/filament/admin/theme.css')
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
             ->pages([
