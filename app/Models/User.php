@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo; // 🌟 استدعاء ك�
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password', 'country_id', 'state_id', 'city_id'])]
+#[Fillable(['name', 'email', 'password', 'type', 'country_id', 'state_id', 'city_id'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable implements FilamentUser
 {
@@ -35,6 +35,21 @@ class User extends Authenticatable implements FilamentUser
     public function canAccessPanel(Panel $panel): bool
     {
         return true;
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->type === 'admin';
+    }
+
+    public function isManager(): bool
+    {
+        return $this->type === 'manager';
+    }
+
+    public function isUser(): bool
+    {
+        return $this->type === 'user';
     }
 
     public function country(): BelongsTo

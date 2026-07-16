@@ -26,7 +26,7 @@ class AdminResourcesTest extends TestCase
 
     public function test_admin_resource_pages_render(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create(['type' => 'admin']);
         $category = Category::query()->create(['name' => 'News', 'slug' => 'news']);
         $post = Post::query()->create([
             'title' => 'Test post',
@@ -107,6 +107,7 @@ class AdminResourcesTest extends TestCase
         $city = $state->cities()->create(['name' => 'Search City']);
         $user = User::factory()->create([
             'name' => 'Search User',
+            'type' => 'admin',
             'country_id' => $country->getKey(),
             'state_id' => $state->getKey(),
             'city_id' => $city->getKey(),
