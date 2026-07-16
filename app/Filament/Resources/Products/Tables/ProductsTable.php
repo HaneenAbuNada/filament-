@@ -2,11 +2,9 @@
 
 namespace App\Filament\Resources\Products\Tables;
 
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\EditAction;
-use Filament\Actions\ViewAction;
 use Filament\Tables\Table;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ImageColumn;
 
 class ProductsTable
 {
@@ -14,18 +12,22 @@ class ProductsTable
     {
         return $table
             ->columns([
-                //
+                ImageColumn::make('image')->disk('public'),
+                TextColumn::make('name')->searchable()->sortable(),
+                TextColumn::make('sku')->label('SKU'),
+                TextColumn::make('price'),
+                TextColumn::make('stock'),
             ])
             ->filters([
                 //
             ])
-            ->recordActions([
-                ViewAction::make(),
-                EditAction::make(),
+            ->actions([
+                \Filament\Tables\Actions\ViewAction::make(), 
+                \Filament\Tables\Actions\EditAction::make(),
             ])
-            ->toolbarActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+            ->bulkActions([
+                \Filament\Tables\Actions\BulkActionGroup::make([
+                    \Filament\Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
     }

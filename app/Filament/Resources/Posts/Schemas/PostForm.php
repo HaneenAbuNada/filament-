@@ -12,14 +12,13 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\ColorPicker;
 use Filament\Forms\Components\MarkdownEditor;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\DatePicker;
 use Filament\Schemas\Components\Actions\Action;
 
 class PostForm
 {
-public static function configure(Schema $schema): Schema
+    public static function configure(Schema $schema): Schema
     {
         return $schema
             ->components([
@@ -44,7 +43,7 @@ public static function configure(Schema $schema): Schema
                             Group::make([
                                 Select::make('category_id')
                                     ->label('Category')
-                                    ->options(Category::all()->pluck('name', 'id'))
+                                    ->relationship('category', 'name')
                                     ->searchable(),
                                     
                                 ColorPicker::make('color'),
@@ -63,7 +62,12 @@ public static function configure(Schema $schema): Schema
                                 ->disk('public')
                                 ->directory('posts'),
                                 
-                            TagsInput::make('tags'),
+                            Select::make('tags')
+                                ->label('Tags')
+                                ->relationship('tags', 'name')
+                                ->multiple()
+                                ->preload(),
+
                             Checkbox::make('published'),
                             DatePicker::make('published_at'),
                         ]),

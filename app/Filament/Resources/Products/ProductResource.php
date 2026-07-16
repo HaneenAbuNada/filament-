@@ -7,17 +7,21 @@ use App\Models\Product;
 use Filament\Resources\Resource;
 use Filament\Tables\Table;
 
-use Filament\Schemas\Schema; 
+use Filament\Schemas\Schema;
 
 use Filament\Forms\Components\Group as FormGroup;
-use Filament\Infolists\Components\Tabs;
-use Filament\Infolists\Components\Tabs\Tab;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
 
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\MarkdownEditor;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Checkbox;
-use Filament\Forms\Components\Actions\Action;
+use Filament\Actions\Action;
+use Filament\Actions\ViewAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
 
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Components\ImageEntry;
@@ -25,17 +29,16 @@ use Filament\Infolists\Components\IconEntry;
 
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ImageColumn;
-
+use BackedEnum;
 class ProductResource extends Resource
 {
     protected static ?string $model = Product::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-shopping-bag';
-
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-shopping-bag';
     public static function form(Schema $schema): Schema
     {
         return $schema
-            ->components([  
+            ->components([
                 \Filament\Forms\Components\Wizard::make([
                     \Filament\Forms\Components\Wizard\Step::make('Product Info')
                         ->schema([
@@ -43,7 +46,7 @@ class ProductResource extends Resource
                                 TextInput::make('name')->required(),
                                 TextInput::make('sku')
                                     ->required()
-                                    ->unique(ignorable: fn ($record) => $record),
+                                    ->unique(ignorable: fn($record) => $record),
                             ])->columns(2),
                             MarkdownEditor::make('description'),
                         ]),
@@ -63,14 +66,14 @@ class ProductResource extends Resource
                             Checkbox::make('is_featured'),
                         ]),
                 ])
-                ->columnSpanFull()
-                ->skippable()
-                ->submitAction(
-                    Action::make('save')
-                        ->label('Save Product')
-                        ->color('primary')
-                        ->submit('save')
-                ),
+                    ->columnSpanFull()
+                    ->skippable()
+                    ->submitAction(
+                        Action::make('save')
+                            ->label('Save Product')
+                            ->color('primary')
+                            ->submit('save')
+                    ),
             ]);
     }
 
@@ -88,7 +91,7 @@ class ProductResource extends Resource
                 //
             ])
             ->actions([
-                \Filament\Tables\Actions\ViewAction::make(), 
+                \Filament\Tables\Actions\ViewAction::make(),
                 \Filament\Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
@@ -101,7 +104,7 @@ class ProductResource extends Resource
     public static function infolist(Schema $schema): Schema
     {
         return $schema
-            ->components([  
+            ->components([
                 Tabs::make('Product Details')
                     ->tabs([
                         Tab::make('Product Info')
@@ -116,7 +119,7 @@ class ProductResource extends Resource
 
                         Tab::make('Pricing & Stock')
                             ->icon('heroicon-o-currency-dollar')
-                            ->badge(10) 
+                            ->badge(10)
                             ->badgeColor('info')
                             ->schema([
                                 TextEntry::make('price')->label('Price')->weight('bold'),
@@ -132,7 +135,7 @@ class ProductResource extends Resource
                             ]),
                     ])
                     ->columnSpanFull()
-                    ->vertical(), 
+                    ->vertical(),
             ]);
     }
 
@@ -141,7 +144,7 @@ class ProductResource extends Resource
         return [
             'index' => Pages\ListProducts::route('/'),
             'create' => Pages\CreateProduct::route('/create'),
-            'view' => Pages\ViewProduct::route('/{record}'), 
+            'view' => Pages\ViewProduct::route('/{record}'),
             'edit' => Pages\EditProduct::route('/{record}/edit'),
         ];
     }
