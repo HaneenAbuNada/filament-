@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Resources;
+namespace App\Filament\Resources\Users;
 
 use App\Filament\Resources\Users\Pages\CreateUser;
 use App\Filament\Resources\Users\Pages\EditUser;
@@ -13,14 +13,48 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 
 class UserResource extends Resource
 {
     protected static ?string $model = User::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUsers;
 
-    protected static ?string $recordTitleAttribute = 'User';
+    protected static \UnitEnum|string|null $navigationGroup = 'Administration';
+
+    protected static ?string $recordTitleAttribute = 'name';
+
+    public static function getNavigationBadge(): ?string
+    {
+        return (string) User::query()->count();
+    }
+
+    public static function getNavigationBadgeTooltip(): ?string
+    {
+        return 'Total users';
+    }
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['name', 'email', 'country.name', 'state.name', 'city.name'];
+    }
+
+    public static function getGlobalSearchEloquentQuery(): Builder
+    {
+        return parent::getGlobalSearchEloquentQuery()->with(['country', 'state', 'city']);
+    }
+
+    public static function getGlobalSearchResultDetails(Model $record): array
+    {
+        return [
+            'Email' => $record->email,
+            'Location' => collect([$record->city?->name, $record->state?->name, $record->country?->name])
+                ->filter()
+                ->join(', '),
+        ];
+    }
 
     public static function form(Schema $schema): Schema
     {

@@ -2,9 +2,15 @@
 
 namespace App\Filament\Resources\Products\Tables;
 
-use Filament\Tables\Table;
-use Filament\Tables\Columns\TextColumn;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\TernaryFilter;
+use Filament\Tables\Table;
 
 class ProductsTable
 {
@@ -15,20 +21,24 @@ class ProductsTable
                 ImageColumn::make('image')->disk('public'),
                 TextColumn::make('name')->searchable()->sortable(),
                 TextColumn::make('sku')->label('SKU'),
-                TextColumn::make('price'),
-                TextColumn::make('stock'),
+                TextColumn::make('price')->money('USD')->sortable(),
+                TextColumn::make('stock')->numeric()->sortable(),
+                IconColumn::make('is_active')->boolean(),
+                IconColumn::make('is_featured')->boolean(),
             ])
             ->filters([
-                //
+                TernaryFilter::make('is_active'),
+                TernaryFilter::make('is_featured'),
             ])
-            ->actions([
-                \Filament\Tables\Actions\ViewAction::make(), 
-                \Filament\Tables\Actions\EditAction::make(),
+            ->recordActions([
+                ViewAction::make(),
+                EditAction::make(),
             ])
-            ->bulkActions([
-                \Filament\Tables\Actions\BulkActionGroup::make([
-                    \Filament\Tables\Actions\DeleteBulkAction::make(),
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
-            ]);
+            ])
+            ->defaultSort('created_at', 'desc');
     }
 }

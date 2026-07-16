@@ -6,6 +6,7 @@ use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Navigation\NavigationGroup;
 use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
@@ -28,6 +29,15 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
+            ->sidebarCollapsibleOnDesktop()
+            ->globalSearchKeyBindings(['command+k', 'ctrl+k'])
+            ->globalSearchFieldKeyBindingSuffix()
+            ->navigationGroups([
+                NavigationGroup::make('Content')->collapsible(),
+                NavigationGroup::make('Commerce')->collapsible(),
+                NavigationGroup::make('Administration')->collapsible(),
+                NavigationGroup::make('Locations')->collapsible(),
+            ])
             ->colors([
                 'primary' => Color::Amber,
             ])

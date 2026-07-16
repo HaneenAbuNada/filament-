@@ -2,22 +2,22 @@
 
 namespace App\Filament\Resources\Posts\Tables;
 
-use Filament\Tables\Table;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\ImageColumn;
+use App\Models\Post;
+use Filament\Actions\Action;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\ReplicateAction;
+use Filament\Forms\Components\Checkbox;
+use Filament\Forms\Components\DatePicker;
 use Filament\Tables\Columns\IconColumn;
-
+use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
-use Filament\Forms\Components\DatePicker;
+use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-
-use Filament\Tables\Actions\Action;
-use Filament\Tables\Actions\DeleteAction;
-use Filament\Tables\Actions\EditAction;
-use Filament\Tables\Actions\ReplicateAction;
-use Filament\Forms\Components\Checkbox;
-use App\Models\Post;
 
 class PostsTable
 {
@@ -27,7 +27,7 @@ class PostsTable
             ->columns([
                 TextColumn::make('id')
                     ->label('ID')
-                    ->toggleable(isToggledHiddenByDefault: true), 
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 ImageColumn::make('image')
                     ->disk('public')
@@ -36,28 +36,30 @@ class PostsTable
                 TextColumn::make('title')
                     ->searchable()
                     ->sortable()
-                    ->toggleable(), 
+                    ->toggleable(),
 
                 TextColumn::make('slug')
                     ->searchable()
                     ->sortable()
-                    ->toggleable(), 
+                    ->toggleable(),
 
                 TextColumn::make('category.name')
                     ->searchable()
                     ->sortable()
-                    ->toggleable(), 
+                    ->toggleable(),
 
                 TextColumn::make('color'),
 
                 TextColumn::make('created_at')
                     ->label('Created At')
                     ->dateTime()
-                    ->sortable(), 
+                    ->sortable(),
 
-                TextColumn::make('tags')
+                TextColumn::make('tags.name')
                     ->label('Tags')
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->badge()
+                    ->searchable()
+                    ->toggleable(),
 
                 IconColumn::make('published')
                     ->label('Published')
@@ -83,13 +85,12 @@ class PostsTable
                     ->relationship('category', 'name')
                     ->preload(),
             ])
-            ->actions([
-                
+            ->recordActions([
                 Action::make('status')
-                    ->label('Status Change') 
-                    ->icon('heroicon-o-academic-cap') 
+                    ->label('Status Change')
+                    ->icon('heroicon-o-academic-cap')
                     ->form([
-                        Checkbox::make('published') 
+                        Checkbox::make('published')
                             ->label('Published'),
                     ])
                     ->fillForm(fn (Post $record): array => [
@@ -101,15 +102,15 @@ class PostsTable
                         ]);
                     }),
 
-                ReplicateAction::make(),  
-                DeleteAction::make(),   
-                EditAction::make(),      
+                ReplicateAction::make(),
+                DeleteAction::make(),
+                EditAction::make(),
             ])
-            ->bulkActions([
-                \Filament\Tables\Actions\BulkActionGroup::make([
-                    \Filament\Tables\Actions\DeleteBulkAction::make(),
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ])
-            ->defaultSort('title', 'asc'); 
+            ->defaultSort('title', 'asc');
     }
 }

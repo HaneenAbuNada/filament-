@@ -2,19 +2,17 @@
 
 namespace App\Filament\Resources\Posts\Schemas;
 
-use Filament\Schemas\Schema;
-use Filament\Schemas\Components\Wizard;
-use Filament\Schemas\Components\Step;
-use Filament\Schemas\Components\Group;
-
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Select;
 use Filament\Forms\Components\ColorPicker;
-use Filament\Forms\Components\MarkdownEditor;
+use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Checkbox;
-use Filament\Forms\Components\DatePicker;
-use Filament\Schemas\Components\Actions\Action;
+use Filament\Forms\Components\MarkdownEditor;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Set;
+use Filament\Schemas\Schema;
+use Illuminate\Support\Str;
 
 class PostForm
 {
@@ -22,64 +20,49 @@ class PostForm
     {
         return $schema
             ->components([
-                Wizard::make([
-                    Step::make('Post Info')
-                        ->description('Fill all the fields')
-                        ->icon('heroicon-o-academic-cap')
-                        ->schema([
-                            Group::make([
-                                TextInput::make('title')
-                                    ->required()
-                                    ->rules(['required', 'min:3', 'max:10']),
-                                    
-                                TextInput::make('slug')
-                                        ->required()
-                                        ->unique(ignorable: fn ($record) => $record)
-                                        ->validationMessages([
-                                            'unique' => 'slug should be unique.',
-                                        ]),
-                            ])->columns(2),
-
-                            Group::make([
-                                Select::make('category_id')
-                                    ->label('Category')
-                                    ->relationship('category', 'name')
-                                    ->searchable(),
-                                    
-                                ColorPicker::make('color'),
-                            ])->columns(2),
-                        ]),
-                    Step::make('Content')
-                        ->description('Write your post content')
-                        ->schema([
-                            MarkdownEditor::make('body')->required(),
-                        ]),
-
-                    Step::make('Media & Status')
-                        ->description('Fill media and status')
-                        ->schema([
-                            FileUpload::make('image')
-                                ->disk('public')
-                                ->directory('posts'),
-                                
-                            Select::make('tags')
-                                ->label('Tags')
-                                ->relationship('tags', 'name')
-                                ->multiple()
-                                ->preload(),
-
-                            Checkbox::make('published'),
-                            DatePicker::make('published_at'),
-                        ]),
-                ])
-                ->columnSpanFull()
-                ->skippable()
-                ->submitAction(
-                    Action::make('save')
-                        ->label('Save Post')
-                        ->color('primary')
-                        ->submit('save')
-                ),
+                Section::make('Post information')
+                    ->schema([
+                        TextInput::make('title')
+                            ->required()
+                            ->maxLength(255)
+                            ->live(onBlur: true)
+                            ->afterStateUpdated(fn (?string $state, Set $set) => $set('slug', Str::slug($state ?? ''))),
+                        TextInput::make('slug')
+                            ->required()
+                            ->maxLength(255)
+                            ->unique(ignoreRecord: true),
+                        Select::make('category_id')
+                            ->label('Category')
+                            ->relationship('category', 'name')
+                            ->searchable()
+                            ->preload()
+                            ->required(),
+                        ColorPicker::make('color'),
+                    ])
+                    ->columns(2),
+                Section::make('Content')
+                    ->schema([
+                        MarkdownEditor::make('body')
+                            ->required()
+                            ->columnSpanFull(),
+                    ]),
+                Section::make('Media and publishing')
+                    ->schema([
+                        FileUpload::make('image')
+                            ->image()
+                            ->disk('public')
+                            ->directory('posts'),
+                        Select::make('tags')
+                            ->relationship('tags', 'name')
+                            ->multiple()
+                            ->searchable()
+                            ->preload(),
+                        Toggle::make('published')
+                            ->live(),
+                        DateTimePicker::make('published_at')
+                            ->visible(fn ($get): bool => (bool) $get('published')),
+                    ])
+                    ->columns(2),
             ]);
     }
 }

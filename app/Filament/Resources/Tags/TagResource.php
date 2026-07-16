@@ -1,14 +1,13 @@
 <?php
 
-namespace App\Filament\Resources\Categories;
+namespace App\Filament\Resources\Tags;
 
-use App\Filament\Resources\Categories\Pages\CreateCategory;
-use App\Filament\Resources\Categories\Pages\EditCategory;
-use App\Filament\Resources\Categories\Pages\ListCategories;
-use App\Filament\Resources\Categories\RelationManagers\PostsRelationManager;
-use App\Filament\Resources\Categories\Schemas\CategoryForm;
-use App\Filament\Resources\Categories\Tables\CategoriesTable;
-use App\Models\Category;
+use App\Filament\Resources\Tags\Pages\CreateTag;
+use App\Filament\Resources\Tags\Pages\EditTag;
+use App\Filament\Resources\Tags\Pages\ListTags;
+use App\Filament\Resources\Tags\Schemas\TagForm;
+use App\Filament\Resources\Tags\Tables\TagsTable;
+use App\Models\Tag;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -16,28 +15,28 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
 
-class CategoryResource extends Resource
+class TagResource extends Resource
 {
-    protected static ?string $model = Category::class;
+    protected static ?string $model = Tag::class;
 
     protected static ?string $navigationParentItem = 'Posts';
 
     protected static \UnitEnum|string|null $navigationGroup = 'Content';
 
-    protected static ?int $navigationSort = 1;
+    protected static ?int $navigationSort = 2;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedFolder;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedTag;
 
     protected static ?string $recordTitleAttribute = 'name';
 
     public static function getNavigationBadge(): ?string
     {
-        return (string) Category::query()->count();
+        return (string) Tag::query()->count();
     }
 
     public static function getNavigationBadgeTooltip(): ?string
     {
-        return 'Total categories';
+        return 'Total tags';
     }
 
     public static function getGloballySearchableAttributes(): array
@@ -55,27 +54,27 @@ class CategoryResource extends Resource
 
     public static function form(Schema $schema): Schema
     {
-        return CategoryForm::configure($schema);
+        return TagForm::configure($schema);
     }
 
     public static function table(Table $table): Table
     {
-        return CategoriesTable::configure($table);
+        return TagsTable::configure($table);
     }
 
     public static function getRelations(): array
     {
         return [
-            PostsRelationManager::class,
+            //
         ];
     }
 
     public static function getPages(): array
     {
         return [
-            'index' => ListCategories::route('/'),
-            'create' => CreateCategory::route('/create'),
-            'edit' => EditCategory::route('/{record}/edit'),
+            'index' => ListTags::route('/'),
+            'create' => CreateTag::route('/create'),
+            'edit' => EditTag::route('/{record}/edit'),
         ];
     }
 }

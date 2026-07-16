@@ -1,151 +1,83 @@
 <?php
 
-namespace App\Filament\Resources;
+namespace App\Filament\Resources\Products;
 
-use App\Filament\Resources\ProductResource\Pages;
+use App\Filament\Resources\Products\Pages\CreateProduct;
+use App\Filament\Resources\Products\Pages\EditProduct;
+use App\Filament\Resources\Products\Pages\ListProducts;
+use App\Filament\Resources\Products\Pages\ViewProduct;
+use App\Filament\Resources\Products\Schemas\ProductForm;
+use App\Filament\Resources\Products\Schemas\ProductInfolist;
+use App\Filament\Resources\Products\Tables\ProductsTable;
 use App\Models\Product;
-use Filament\Resources\Resource;
-use Filament\Tables\Table;
-
-use Filament\Schemas\Schema;
-
-use Filament\Forms\Components\Group as FormGroup;
-use Filament\Schemas\Components\Tabs;
-use Filament\Schemas\Components\Tabs\Tab;
-
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\MarkdownEditor;
-use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Checkbox;
-use Filament\Actions\Action;
-use Filament\Actions\ViewAction;
-use Filament\Actions\EditAction;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-
-use Filament\Infolists\Components\TextEntry;
-use Filament\Infolists\Components\ImageEntry;
-use Filament\Infolists\Components\IconEntry;
-
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\ImageColumn;
 use BackedEnum;
+use Filament\Resources\Resource;
+use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
+
 class ProductResource extends Resource
 {
     protected static ?string $model = Product::class;
 
-    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-shopping-bag';
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedShoppingBag;
+
+    protected static \UnitEnum|string|null $navigationGroup = 'Commerce';
+
+    protected static ?string $recordTitleAttribute = 'name';
+
+    public static function getNavigationBadge(): ?string
+    {
+        return (string) Product::query()->where('is_active', true)->count();
+    }
+
+    public static function getNavigationBadgeColor(): ?string
+    {
+        return 'success';
+    }
+
+    public static function getNavigationBadgeTooltip(): ?string
+    {
+        return 'Active products';
+    }
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['name', 'sku', 'description'];
+    }
+
+    public static function getGlobalSearchResultDetails(Model $record): array
+    {
+        return [
+            'SKU' => $record->sku,
+            'Price' => '$'.number_format((float) $record->price, 2),
+            'Stock' => (string) $record->stock,
+        ];
+    }
+
     public static function form(Schema $schema): Schema
     {
-        return $schema
-            ->components([
-                \Filament\Forms\Components\Wizard::make([
-                    \Filament\Forms\Components\Wizard\Step::make('Product Info')
-                        ->schema([
-                            FormGroup::make([
-                                TextInput::make('name')->required(),
-                                TextInput::make('sku')
-                                    ->required()
-                                    ->unique(ignorable: fn($record) => $record),
-                            ])->columns(2),
-                            MarkdownEditor::make('description'),
-                        ]),
-
-                    \Filament\Forms\Components\Wizard\Step::make('Pricing & Stock')
-                        ->schema([
-                            FormGroup::make([
-                                TextInput::make('price')->numeric()->required(),
-                                TextInput::make('stock')->numeric()->required(),
-                            ])->columns(2),
-                        ]),
-
-                    \Filament\Forms\Components\Wizard\Step::make('Media & Status')
-                        ->schema([
-                            FileUpload::make('image')->disk('public')->directory('products'),
-                            Checkbox::make('is_active'),
-                            Checkbox::make('is_featured'),
-                        ]),
-                ])
-                    ->columnSpanFull()
-                    ->skippable()
-                    ->submitAction(
-                        Action::make('save')
-                            ->label('Save Product')
-                            ->color('primary')
-                            ->submit('save')
-                    ),
-            ]);
+        return ProductForm::configure($schema);
     }
 
     public static function table(Table $table): Table
     {
-        return $table
-            ->columns([
-                ImageColumn::make('image')->disk('public'),
-                TextColumn::make('name')->searchable()->sortable(),
-                TextColumn::make('sku')->label('SKU'),
-                TextColumn::make('price'),
-                TextColumn::make('stock'),
-            ])
-            ->filters([
-                //
-            ])
-            ->actions([
-                \Filament\Tables\Actions\ViewAction::make(),
-                \Filament\Tables\Actions\EditAction::make(),
-            ])
-            ->bulkActions([
-                \Filament\Tables\Actions\BulkActionGroup::make([
-                    \Filament\Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ]);
+        return ProductsTable::configure($table);
     }
 
     public static function infolist(Schema $schema): Schema
     {
-        return $schema
-            ->components([
-                Tabs::make('Product Details')
-                    ->tabs([
-                        Tab::make('Product Info')
-                            ->icon('heroicon-o-academic-cap')
-                            ->schema([
-                                TextEntry::make('id')->label('Product ID')->weight('bold')->color('primary'),
-                                TextEntry::make('name')->label('Product Name')->weight('bold'),
-                                TextEntry::make('sku')->label('Product SKU')->badge()->color('success'),
-                                TextEntry::make('description')->label('Description'),
-                                TextEntry::make('created_at')->label('Creation Date')->date('m/d/Y'),
-                            ]),
-
-                        Tab::make('Pricing & Stock')
-                            ->icon('heroicon-o-currency-dollar')
-                            ->badge(10)
-                            ->badgeColor('info')
-                            ->schema([
-                                TextEntry::make('price')->label('Price')->weight('bold'),
-                                TextEntry::make('stock')->label('Stock')->weight('bold'),
-                            ]),
-
-                        Tab::make('Media & Status')
-                            ->icon('heroicon-o-photo')
-                            ->schema([
-                                ImageEntry::make('image')->label('Product Image')->disk('public'),
-                                IconEntry::make('is_active')->label('Is Active?')->boolean(),
-                                IconEntry::make('is_featured')->label('Is Featured?')->boolean(),
-                            ]),
-                    ])
-                    ->columnSpanFull()
-                    ->vertical(),
-            ]);
+        return ProductInfolist::configure($schema);
     }
 
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListProducts::route('/'),
-            'create' => Pages\CreateProduct::route('/create'),
-            'view' => Pages\ViewProduct::route('/{record}'),
-            'edit' => Pages\EditProduct::route('/{record}/edit'),
+            'index' => ListProducts::route('/'),
+            'create' => CreateProduct::route('/create'),
+            'view' => ViewProduct::route('/{record}'),
+            'edit' => EditProduct::route('/{record}/edit'),
         ];
     }
 }

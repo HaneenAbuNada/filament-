@@ -2,55 +2,60 @@
 
 namespace App\Filament\Resources\Products\Schemas;
 
-use Filament\Schemas\Schema;
-use Filament\Forms\Components\Group as FormGroup;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\MarkdownEditor;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Checkbox;
-use Filament\Forms\Components\Actions\Action;
+use Filament\Forms\Components\MarkdownEditor;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
 
 class ProductForm
 {
     public static function configure(Schema $schema): Schema
     {
         return $schema
-            ->components([  
-                \Filament\Forms\Components\Wizard::make([
-                    \Filament\Forms\Components\Wizard\Step::make('Product Info')
-                        ->schema([
-                            FormGroup::make([
-                                TextInput::make('name')->required(),
-                                TextInput::make('sku')
-                                    ->required()
-                                    ->unique(ignorable: fn ($record) => $record),
-                            ])->columns(2),
-                            MarkdownEditor::make('description'),
-                        ]),
-
-                    \Filament\Forms\Components\Wizard\Step::make('Pricing & Stock')
-                        ->schema([
-                            FormGroup::make([
-                                TextInput::make('price')->numeric()->required(),
-                                TextInput::make('stock')->numeric()->required(),
-                            ])->columns(2),
-                        ]),
-
-                    \Filament\Forms\Components\Wizard\Step::make('Media & Status')
-                        ->schema([
-                            FileUpload::make('image')->disk('public')->directory('products'),
-                            Checkbox::make('is_active'),
-                            Checkbox::make('is_featured'),
-                        ]),
-                ])
-                ->columnSpanFull()
-                ->skippable()
-                ->submitAction(
-                    Action::make('save')
-                        ->label('Save Product')
-                        ->color('primary')
-                        ->submit('save')
-                ),
+            ->components([
+                Section::make('Product information')
+                    ->schema([
+                        TextInput::make('name')
+                            ->required()
+                            ->maxLength(255),
+                        TextInput::make('sku')
+                            ->label('SKU')
+                            ->required()
+                            ->maxLength(255)
+                            ->unique(ignoreRecord: true),
+                        MarkdownEditor::make('description')
+                            ->columnSpanFull(),
+                    ])
+                    ->columns(2),
+                Section::make('Pricing and stock')
+                    ->schema([
+                        TextInput::make('price')
+                            ->numeric()
+                            ->minValue(0)
+                            ->prefix('$')
+                            ->required(),
+                        TextInput::make('stock')
+                            ->numeric()
+                            ->integer()
+                            ->minValue(0)
+                            ->default(0)
+                            ->required(),
+                    ])
+                    ->columns(2),
+                Section::make('Media and status')
+                    ->schema([
+                        FileUpload::make('image')
+                            ->image()
+                            ->disk('public')
+                            ->directory('products'),
+                        Toggle::make('is_active')
+                            ->default(true),
+                        Toggle::make('is_featured')
+                            ->default(false),
+                    ])
+                    ->columns(3),
             ]);
     }
 }

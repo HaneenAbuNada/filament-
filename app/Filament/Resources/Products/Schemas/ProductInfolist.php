@@ -2,19 +2,19 @@
 
 namespace App\Filament\Resources\Products\Schemas;
 
-use Filament\Schemas\Schema;
-use Filament\Infolists\Components\Tabs;
-use Filament\Infolists\Components\Tabs\Tab;
-use Filament\Infolists\Components\TextEntry;
-use Filament\Infolists\Components\ImageEntry;
 use Filament\Infolists\Components\IconEntry;
+use Filament\Infolists\Components\ImageEntry;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Schemas\Schema;
 
 class ProductInfolist
 {
     public static function configure(Schema $schema): Schema
     {
         return $schema
-            ->components([  
+            ->components([
                 Tabs::make('Product Details')
                     ->tabs([
                         Tab::make('Product Info')
@@ -29,8 +29,6 @@ class ProductInfolist
 
                         Tab::make('Pricing & Stock')
                             ->icon('heroicon-o-currency-dollar')
-                            ->badge(10) 
-                            ->badgeColor('info')
                             ->schema([
                                 TextEntry::make('price')->label('Price')->weight('bold'),
                                 TextEntry::make('stock')->label('Stock')->weight('bold'),
@@ -45,7 +43,7 @@ class ProductInfolist
                             ]),
                     ])
                     ->columnSpanFull()
-                    ->vertical(), 
+                    ->vertical(),
             ]);
     }
 }

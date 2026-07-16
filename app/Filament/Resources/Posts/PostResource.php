@@ -1,42 +1,79 @@
 <?php
 
-namespace App\Filament\Resources;
+namespace App\Filament\Resources\Posts;
 
 use App\Filament\Resources\Posts\Pages\CreatePost;
 use App\Filament\Resources\Posts\Pages\EditPost;
 use App\Filament\Resources\Posts\Pages\ListPosts;
+use App\Filament\Resources\Posts\Schemas\PostForm;
+use App\Filament\Resources\Posts\Tables\PostsTable;
 use App\Models\Post;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
-
-use App\Filament\Resources\Posts\Schemas\PostForm;
-use App\Filament\Resources\Posts\Tables\PostsTable;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 
 class PostResource extends Resource
 {
     protected static ?string $model = Post::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedNewspaper;
 
-    protected static ?string $recordTitleAttribute = 'User';
+    protected static \UnitEnum|string|null $navigationGroup = 'Content';
+
+    protected static ?int $navigationSort = 1;
+
+    protected static ?string $recordTitleAttribute = 'title';
+
+    public static function getNavigationBadge(): ?string
+    {
+        return (string) Post::query()->count();
+    }
+
+    public static function getNavigationBadgeTooltip(): ?string
+    {
+        return 'Total posts';
+    }
 
     public static function form(Schema $schema): Schema
     {
         return PostForm::configure($schema);
     }
 
-     public static function table(Table $table): Table
+    public static function table(Table $table): Table
     {
         return PostsTable::configure($table);
     }
 
-    public static function getRelations(): array
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['title', 'slug', 'category.name'];
+    }
+
+    public static function getGlobalSearchResultDetails(Model $record): array
     {
         return [
+            'Slug' => $record->slug,
+            'Category' => $record->category?->name,
         ];
+    }
+
+    public static function getGlobalSearchEloquentQuery(): Builder
+    {
+        return parent::getGlobalSearchEloquentQuery()->with(['category']);
+    }
+
+    public static function getGlobalSearchResultUrl(Model $record): string
+    {
+        return static::getUrl('edit', ['record' => $record]);
+    }
+
+    public static function getRelations(): array
+    {
+        return [];
     }
 
     public static function getPages(): array

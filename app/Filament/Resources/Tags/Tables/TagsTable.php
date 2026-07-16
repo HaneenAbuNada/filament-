@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Resources\Users\Tables;
+namespace App\Filament\Resources\Tags\Tables;
 
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
@@ -8,19 +8,15 @@ use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
-class UsersTable
+class TagsTable
 {
     public static function configure(Table $table): Table
     {
         return $table
             ->columns([
-                TextColumn::make('name')
-                    ->searchable(),
-
-                TextColumn::make('email'),
-                TextColumn::make('country.name')->label('Country')->searchable()->sortable(),
-                TextColumn::make('state.name')->label('State')->searchable()->sortable(),
-                TextColumn::make('city.name')->label('City')->searchable()->sortable(),
+                TextColumn::make('name')->searchable()->sortable(),
+                TextColumn::make('slug')->searchable(),
+                TextColumn::make('posts_count')->counts('posts')->label('Posts')->sortable(),
                 TextColumn::make('created_at')->dateTime()->sortable()->toggleable(),
             ])
             ->filters([
